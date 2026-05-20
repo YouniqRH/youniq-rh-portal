@@ -106,16 +106,17 @@ export interface AuditLog {
 export type Database = {
   public: {
     Tables: {
-      profiles:            { Row: Profile;          Insert: Partial<Profile> & { id: string; name: string; email: string }; Update: Partial<Profile> };
-      companies:           { Row: Company;          Insert: Partial<Company> & { nome: string }; Update: Partial<Company> };
-      projects:            { Row: Project;          Insert: Partial<Project> & { company_id: string; nome: string; tipo_servico: string }; Update: Partial<Project> };
-      jobs:                { Row: Job;              Insert: Partial<Job> & { project_id: string; title: string }; Update: Partial<Job> };
-      candidates:          { Row: Candidate;        Insert: Partial<Candidate> & { job_id: string; name: string }; Update: Partial<Candidate> };
-      services_contracted: { Row: ServiceContracted; Insert: Partial<ServiceContracted> & { company_id: string; service_name: string }; Update: Partial<ServiceContracted> };
-      audit_logs:          { Row: AuditLog;         Insert: Partial<AuditLog> & { action: string; entity_type: string }; Update: Partial<AuditLog> };
+      profiles:            { Row: Profile;          Insert: Partial<Profile> & { id: string; name: string; email: string }; Update: Partial<Profile>; Relationships: [] };
+      companies:           { Row: Company;          Insert: Partial<Company> & { nome: string }; Update: Partial<Company>; Relationships: [] };
+      projects:            { Row: Project;          Insert: Partial<Project> & { company_id: string; nome: string; tipo_servico: string }; Update: Partial<Project>; Relationships: [] };
+      jobs:                { Row: Job;              Insert: Partial<Job> & { project_id: string; title: string }; Update: Partial<Job>; Relationships: [] };
+      candidates:          { Row: Candidate;        Insert: Partial<Candidate> & { job_id: string; name: string }; Update: Partial<Candidate>; Relationships: [] };
+      services_contracted: { Row: ServiceContracted; Insert: Partial<ServiceContracted> & { company_id: string; service_name: string }; Update: Partial<ServiceContracted>; Relationships: [] };
+      audit_logs:          { Row: AuditLog;         Insert: Partial<AuditLog> & { action: string; entity_type: string }; Update: Partial<AuditLog>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
+    CompositeTypes: Record<string, never>;
     Enums: {
       user_role: UserRole;
       project_status: ProjectStatus;

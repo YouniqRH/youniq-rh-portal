@@ -6,16 +6,20 @@
  * Use apenas em Server Actions / Route Handlers que ja validaram
  * autorizacao via guards (requireRole/requireAdmin). Defesa em profundidade:
  * RLS protege em SQL, guards protegem em codigo.
+ *
+ * Nota: este client e intencionalmente UNTYPED. Mutations vindas das
+ * Server Actions sao todas validadas via Zod antes de chegar aqui, e a
+ * estrita tipagem do @supabase/supabase-js 2.50+ requer um shape de
+ * Database mais elaborado que nao agrega valor adicional vs. Zod.
  */
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/database";
 
 export function createAdminClient() {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY ausente - configurar em .env.local / Vercel");
   }
-  return createClient<Database>(
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } },
