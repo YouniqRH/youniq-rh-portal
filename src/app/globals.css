@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-purple: 95 46 129;
+    --brand-cream: 239 231 216;
+    --brand-gold: 185 152 90;
+  }
+  body {
+    @apply bg-[#f4eee1] text-ink antialiased font-sans;
+  }
+  h1, h2, h3, h4 { @apply tracking-tight; }
+}
+
+@layer components {
+  .badge {
+    @apply inline-block px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider;
+  }
+  .badge-em_andamento { @apply bg-brand-purple/10 text-brand-purple; }
+  .badge-concluido    { @apply bg-success/10 text-success; }
+  .badge-atrasado     { @apply bg-danger/10 text-danger; }
+  .badge-pausado      { @apply bg-warn/15 text-warn; }
+  .badge-planejado    { @apply bg-info/10 text-info; }
+  .badge-cancelado    { @apply bg-gray-200 text-gray-600; }
+  .badge-aberto       { @apply bg-info/10 text-info; }
+
+  .tag {
+    @apply inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#f1ebe0] text-[#5e5566];
+  }
+  .tag-purple { @apply bg-brand-purple/10 text-brand-purple; }
+  .tag-gold   { @apply bg-brand-gold/15 text-brand-gold; }
+  .tag-danger { @apply bg-danger/10 text-danger; }
+
+  .panel { @apply bg-white border border-[#ece5d4] rounded-xl shadow-soft p-6; }
+  .input { @apply w-full rounded-lg border border-[#e1d8c2] bg-white px-3 py-2 text-sm outline-none transition-shadow focus:border-brand-purple focus:ring-4 focus:ring-brand-purple/15; }
+  .btn-primary { @apply inline-flex items-center gap-2 bg-brand-purple text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors hover:bg-brand-purple-700; }
+  .btn-ghost   { @apply inline-flex items-center gap-2 bg-surface-2 text-ink font-semibold rounded-lg px-4 py-2 text-sm border border-[#ece5d4] transition-colors hover:bg-brand-cream hover:text-brand-purple; }
+  .btn-sm      { @apply px-3 py-1.5 text-xs; }
+
+  .bar-fill { @apply h-full rounded-full; background: linear-gradient(90deg, rgb(95 46 129), rgb(139 95 176)); }
+  .progress { @apply h-2 rounded-full bg-brand-cream overflow-hidden; }
+
+  .link-purple { @apply text-brand-purple font-semibold hover:underline; }
+}
+
+@layer utilities {
+  .score-ring {
+    --p: 0;
+    width: 56px; height: 56px;
+    border-radius: 9999px;
+    background: conic-gradient(rgb(var(--brand-purple)) calc(var(--p) * 1%), rgb(var(--brand-cream)) 0);
+    display: grid; place-items: center; position: relative;
+  }
+  .score-ring::before {
+    content: ''; position: absolute; inset: 5px;
+    border-radius: 9999px; background: white;
+  }
+  .score-ring > span { position: relative; font-weight: 700; }
+}
