@@ -4,14 +4,17 @@
  *
  * NUNCA misture este client com service_role: para acoes administrativas
  * que precisam bypassar RLS use `createAdminClient()` em './admin.ts'.
+ *
+ * Nota: intencionalmente UNTYPED (sem generic Database). Joins do Supabase
+ * 2.50+ retornam 'never' quando Relationships nao esta exaustivamente
+ * declarado, e mantemos casts explicitos nos sites de uso.
  */
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "@/types/database";
 
 export async function createClient() {
   const cookieStore = await cookies();
-  return createServerClient<Database>(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
