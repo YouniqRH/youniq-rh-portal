@@ -27,7 +27,19 @@ export function Sidebar({
   return (
     <aside className="bg-gradient-to-b from-brand-sidebar to-brand-sidebar-2 text-[#d9d3e4] w-64 fixed inset-y-0 left-0 flex flex-col z-30">
       <div className="px-5 pt-5 pb-4 border-b border-[#2f2349] flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-brand-purple text-brand-cream font-extrabold grid place-items-center shadow-md">Y</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/youniq-logo.png"
+          alt="Youniq RH"
+          className="w-12 h-12 object-contain rounded-lg bg-white/5 p-1"
+          onError={(e) => {
+            const img = e.currentTarget;
+            const fallback = document.createElement("div");
+            fallback.className = "w-10 h-10 rounded-xl bg-brand-purple text-brand-cream font-extrabold grid place-items-center shadow-md";
+            fallback.textContent = "Y";
+            img.replaceWith(fallback);
+          }}
+        />
         <div className="leading-tight">
           <div className="text-brand-gold-2 font-bold tracking-wide">YOUNIQ<sup className="text-[10px] text-brand-gold ml-0.5">RH</sup></div>
           <div className="text-[10px] uppercase tracking-[1.5px] text-[#8d83a2]">Portal do Cliente</div>
