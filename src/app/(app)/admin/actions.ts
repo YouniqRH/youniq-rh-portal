@@ -174,3 +174,80 @@ export async function updateJobVisibility(jobId: string, visible: boolean) {
   });
   revalidatePath("/admin/jobs");
 }
+
+// =================== COMPANIES ===================
+
+const onlyDigits = (s: string) => s.replace(/\D/g, "");
+const optionalText = z.string().trim().min(1).nullable().optional().or(z.literal("").transform(() => null));
+
+const CompanySchema = z.object({
+  nome:                 z.string().trim().min(2, "Razao social muito curta"),
+  nome_fantasia:        optionalText,
+  cnpj:                 optionalText.transform((v) => (v ? onlyDigits(v) : v)),
+  inscricao_estadual:   optionalText,
+  inscricao_municipal:  optionalText,
+  email:                z.union([z.string().trim().email("Email invalido"), z.literal("").transform(() => null)]).nullable().optional(),
+  telefone:             optionalText,
+  endereco_logradouro:  optionalText,
+  endereco_numero:      optionalText,
+  endereco_complemento: optionalText,
+  endereco_bairro:      optionalText,
+  endereco_cidade:      optionalText,
+  endereco_uf:          z.union([z.string().trim().length(2, "UF tem 2 letras").toUpperCase(), z.literal("").transform(() => null)]).nullable().optional(),
+  endereco_cep:         optionalText.transform((v) => (v ? onlyDigits(v) : v)),
+  responsavel_nome:     optionalText,
+  responsavel_cargo:    optionalText,
+  observacoes:          optionalText,
+  status:               z.enum(["active", "inactive"]).optional().default("active"),
+});
+
+function buildCompanyPayload(formData: FormData) {
+  const raw: Record<string, unknown> = {};
+  for (const [k, v] of formData.entries()) {
+    if (typeof v === "string") raw[k] = v;
+  }
+  return CompanySchema.parse(raw);
+}
+
+export async function upsertCompany(id: string | null, formData: FormData) {
+  const me = await requireAdmin();
+  let parsed;
+  try {
+    parsed = buildCompanyPayload(formData);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Dados invalidos";
+    throw new Error(msg);
+  }
+
+  const admin = createAdminClient();
+  if (id) {
+    const { error } = await admin.from("companies").update(parsed).eq("id", id);
+    if (error) throw new Error(error.message);
+    await logAudit({ user_id: me.id, action: "user.update", entity_type: "company", entity_id: id, metadata: parsed });
+  } else {
+    const { data, error } = await admin.from("companies").insert(parsed).select("id").single();
+    if (error) {
+      if (error.code === "23505") throw new Error("Ja existe uma empresa com este CNPJ.");
+      throw new Error(error.message);
+    }
+    await logAudit({ user_id: me.id, action: "user.create", entity_type: "company", entity_id: data?.id ?? null, metadata: parsed });
+  }
+  revalidatePath("/admin/empresas");
+  revalidatePath("/admin/usuarios/novo");
+  revalidatePath("/admin/usuarios");
+  redirect("/admin/empresas");
+}
+
+export async function deleteCompany(id: string) {
+  const me = await requireAdmin();
+  const admin = createAdminClient();
+  // Verifica se ha usuarios ou projetos vinculados
+  const { count: usersCount } = await admin.from("profiles").select("id", { count: "exact", head: true }).eq("company_id", id);
+  const { count: projectsCount } = await admin.from("projects").select("id", { count: "exact", head: true }).eq("company_id", id);
+  if ((usersCount ?? 0) > 0 || (projectsCount ?? 0) > 0) {
+    throw new Error("Nao e possivel excluir: ha usuarios ou projetos vinculados a esta empresa. Remova-os primeiro.");
+  }
+  await admin.from("companies").delete().eq("id", id);
+  await logAudit({ user_id: me.id, action: "user.delete", entity_type: "company", entity_id: id });
+  revalidatePath("/admin/empresas");
+}

@@ -35,7 +35,23 @@ export interface Profile {
 
 export interface Company {
   id: string;
-  nome: string;
+  nome: string;                 // Razao social
+  nome_fantasia: string | null;
+  cnpj: string | null;
+  inscricao_estadual: string | null;
+  inscricao_municipal: string | null;
+  email: string | null;
+  telefone: string | null;
+  endereco_logradouro: string | null;
+  endereco_numero: string | null;
+  endereco_complemento: string | null;
+  endereco_bairro: string | null;
+  endereco_cidade: string | null;
+  endereco_uf: string | null;
+  endereco_cep: string | null;
+  responsavel_nome: string | null;
+  responsavel_cargo: string | null;
+  observacoes: string | null;
   status: CompanyStatus;
   created_at: string;
   updated_at: string;

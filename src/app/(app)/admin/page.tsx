@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, Briefcase, Network, ScrollText, Building2, Layers } from "lucide-react";
+import { Users, Briefcase, Network, ScrollText, Building2 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/card";
@@ -29,6 +29,7 @@ export default async function AdminIndex() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Tile href="/admin/empresas" icon={Building2} title="Empresas"  desc="Cadastrar e gerenciar as empresas clientes da Youniq." />
         <Tile href="/admin/usuarios" icon={Users}     title="Usuarios"  desc="Criar, editar, atribuir empresa, role e permissoes." />
         <Tile href="/admin/projetos" icon={Briefcase} title="Projetos"  desc="CRUD de projetos. Visibilidade para cliente e progresso." />
         <Tile href="/admin/jobs"     icon={Network}   title="Vagas"     desc="Atribuir recrutadora, ativar/pausar, controlar visibilidade." />
