@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmForm } from "@/components/app/confirm-form";
+import { ResetPasswordButton } from "@/components/app/reset-password-button";
 import { formatDate } from "@/lib/utils";
 import { toggleUserActive, deleteUser } from "../actions";
 
@@ -53,6 +54,7 @@ export default async function UsuariosPage() {
                     <td className="p-3">{formatDate(u.created_at)}</td>
                     <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
                       <Link href={`/admin/usuarios/${u.id}`} className="btn-ghost btn-sm"><Edit className="w-3.5 h-3.5" />Editar</Link>
+                      <ResetPasswordButton userId={u.id} userEmail={u.email} mode="temp" />
                       <form action={toggleUserActive.bind(null, u.id, !u.active)} className="inline">
                         <Button variant="ghost" size="sm"><Power className="w-3.5 h-3.5" />{u.active ? "Desativar" : "Ativar"}</Button>
                       </form>

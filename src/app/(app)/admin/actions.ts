@@ -1,11 +1,21 @@
 "use server";
 
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAudit } from "@/lib/audit";
+
+// Gera senha temporaria forte (12 chars, sem caracteres ambiguos como 0/O/1/l/I)
+function generateTempPassword(length = 12): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const bytes = randomBytes(length);
+  let s = "";
+  for (let i = 0; i < length; i++) s += chars[bytes[i] % chars.length];
+  return s;
+}
 
 // =================== USERS ===================
 
@@ -102,6 +112,61 @@ export async function deleteUser(id: string) {
   await admin.auth.admin.deleteUser(id);
   await logAudit({ user_id: me.id, action: "user.delete", entity_type: "profile", entity_id: id });
   revalidatePath("/admin/usuarios");
+}
+
+/**
+ * Gera uma senha temporaria forte e a aplica imediatamente ao usuario.
+ * Retorna a senha em texto puro para o admin entregar via canal seguro
+ * (Whatsapp, presencialmente). Admin deve orientar o usuario a trocar
+ * a senha no proximo login.
+ */
+export async function resetUserPassword(id: string): Promise<{ tempPassword: string; userEmail: string }> {
+  const me = await requireAdmin();
+  if (id === me.id) {
+    throw new Error("Para sua propria senha, use 'Esqueci minha senha' na tela de login.");
+  }
+  const admin = createAdminClient();
+  const { data: target, error: fetchErr } = await admin.from("profiles").select("email").eq("id", id).single();
+  if (fetchErr || !target) throw new Error("Usuario nao encontrado.");
+
+  const tempPassword = generateTempPassword(12);
+  const { error } = await admin.auth.admin.updateUserById(id, { password: tempPassword });
+  if (error) throw new Error("Falha ao atualizar senha: " + error.message);
+
+  await logAudit({
+    user_id: me.id,
+    action: "auth.password_reset",
+    entity_type: "profile",
+    entity_id: id,
+    metadata: { reset_by_admin: true, target_email: target.email },
+  });
+
+  return { tempPassword, userEmail: target.email as string };
+}
+
+/**
+ * Alternativa: dispara email de reset (Supabase resetPasswordForEmail).
+ * Usuario recebe link e cria a propria senha. Requer SMTP configurado.
+ */
+export async function sendPasswordResetEmail(id: string): Promise<{ email: string }> {
+  const me = await requireAdmin();
+  const admin = createAdminClient();
+  const { data: target } = await admin.from("profiles").select("email").eq("id", id).single();
+  if (!target) throw new Error("Usuario nao encontrado.");
+
+  const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password`;
+  const { error } = await admin.auth.resetPasswordForEmail(target.email as string, { redirectTo });
+  if (error) throw new Error("Falha ao enviar email: " + error.message);
+
+  await logAudit({
+    user_id: me.id,
+    action: "auth.password_reset_request",
+    entity_type: "profile",
+    entity_id: id,
+    metadata: { requested_by_admin: true, target_email: target.email },
+  });
+
+  return { email: target.email as string };
 }
 
 // =================== PROJECTS ===================
