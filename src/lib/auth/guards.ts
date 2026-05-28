@@ -5,6 +5,7 @@
  * helper no app shell.
  */
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types/database";
@@ -14,8 +15,13 @@ export class ForbiddenError extends Error {
   constructor(msg = "Acesso negado") { super(msg); this.name = "ForbiddenError"; }
 }
 
-/** Garante que ha sessao. Devolve o profile completo do usuario. */
-export async function requireAuth(): Promise<Profile> {
+/**
+ * Garante que ha sessao. Devolve o profile completo do usuario.
+ * Cacheado por request: multiplas chamadas (layout + page + guards) hitam
+ * o Supabase apenas uma vez. Performance significativa em paginas que
+ * fazem requireAuth + getSessionContext + requireAdmin todas juntas.
+ */
+export const requireAuth = cache(async (): Promise<Profile> => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -36,7 +42,7 @@ export async function requireAuth(): Promise<Profile> {
     redirect("/login?error=inactive");
   }
   return profile as Profile;
-}
+});
 
 /** Garante que o usuario tem uma das roles informadas. */
 export async function requireRole(...roles: UserRole[]): Promise<Profile> {

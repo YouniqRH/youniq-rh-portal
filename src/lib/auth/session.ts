@@ -3,6 +3,7 @@
  * Resolve profile + company + visible_modules em uma chamada.
  */
 import "server-only";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
 
@@ -12,7 +13,10 @@ export type SessionContext = {
   visibleModules: Set<string>;
 };
 
-export async function getSessionContext(): Promise<SessionContext | null> {
+/** Cacheado por request - veja nota em guards.ts */
+export const getSessionContext = cache(_getSessionContext);
+
+async function _getSessionContext(): Promise<SessionContext | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
