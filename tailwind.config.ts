@@ -26,14 +26,24 @@ export default {
         info: "#3c6dbf",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans:  ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        serif: ["var(--font-fraunces)", "Fraunces", "Georgia", "serif"],
       },
       boxShadow: {
         soft: "0 1px 2px rgba(31,26,43,.06), 0 1px 3px rgba(31,26,43,.04)",
         card: "0 6px 18px rgba(31,26,43,.07), 0 2px 6px rgba(31,26,43,.05)",
         lg: "0 24px 60px rgba(31,26,43,.12)",
       },
-      borderRadius: { lg: "14px", xl: "18px" },
+      // Cantos mais discretos: visual mais editorial / corporativo
+      borderRadius: {
+        sm: "3px",
+        DEFAULT: "5px",
+        md: "6px",
+        lg: "8px",
+        xl: "10px",
+        "2xl": "14px",
+        "3xl": "18px",
+      },
     },
   },
   plugins: [],

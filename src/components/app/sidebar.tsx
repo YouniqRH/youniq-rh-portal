@@ -41,7 +41,7 @@ export function Sidebar({
           }}
         />
         <div className="leading-tight">
-          <div className="text-brand-gold-2 font-bold tracking-wide">YOUNIQ<sup className="text-[10px] text-brand-gold ml-0.5">RH</sup></div>
+          <div className="text-brand-gold-2 font-serif tracking-[0.04em] text-[17px] leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>YOUNIQ<sup className="text-[9px] text-brand-gold ml-0.5 font-sans tracking-widest">RH</sup></div>
           <div className="text-[10px] uppercase tracking-[1.5px] text-[#8d83a2]">Portal do Cliente</div>
         </div>
       </div>

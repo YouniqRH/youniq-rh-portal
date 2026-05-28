@@ -11,7 +11,22 @@
   body {
     @apply bg-[#f4eee1] text-ink antialiased font-sans;
   }
-  h1, h2, h3, h4 { @apply tracking-tight; }
+  /* Titulos em Fraunces (serif premium) com optical sizing alto */
+  h1, h2 {
+    @apply font-serif tracking-tight;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  h3, h4 {
+    @apply font-serif tracking-tight;
+    font-weight: 600;
+  }
+  /* Labels e botoes ficam em sans pra contraste com os titulos */
+  label, button, input, select, textarea, .nav-item, .btn-primary, .btn-ghost {
+    @apply font-sans;
+  }
 }
 
 @layer components {
